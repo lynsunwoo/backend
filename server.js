@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-const port = 9070;
+const PORT = process.env.PORT || 9070;
 const SECRET_KEY = 'test';
 
 // =====================
@@ -42,8 +42,8 @@ connection.connect((err) => {
 // =====================
 // 5. 서버 실행
 // =====================
-app.listen(port, () => {
-  console.log(`Listening... http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
 });
 
 //4. 회원가입용 API (테스트용) - Resister.js에서 넘겨 받은 username, password를 sql db에 입력하여 추가한다.
@@ -530,4 +530,5 @@ app.put(`/books/booksupdate/:num`, (req, res) => {
     }
   )
 })
+
 
