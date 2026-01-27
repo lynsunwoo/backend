@@ -21,9 +21,9 @@ app.use(express.json());
 // 3. MySQL(DB) 연결 설정
 // =====================
 const connection = mysql.createConnection({
-  host: '127.0.0.1',   // 🔥 localhost ❌
+  host: 'database',
   user: 'root',
-  password: '1234',    // ❗ XAMPP root 비번 (없으면 '' 로)
+  password: '1234',
   database: 'kdt',
   port: 3306
 });
@@ -530,3 +530,4 @@ app.put(`/books/booksupdate/:num`, (req, res) => {
     }
   )
 })
+
