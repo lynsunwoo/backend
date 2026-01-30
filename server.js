@@ -545,7 +545,7 @@ app.get('/ginipet', (req, res) => {
 })
 
 //2. 회원 가입용 API 
-app.post('/register', async (req, res) => {
+app.post('/ginipet/register', async (req, res) => {
   try {
     const { username, password, email, tel } = req.body;
 
@@ -588,7 +588,7 @@ app.post('/check-username', (req, res) => {
 });
 
 //4. 로그인용 API
-app.post('/login', (req, res) => {
+app.post('/ginipet/login', (req, res) => {
   const { username, password } = req.body;
 
   connection.query('SELECT * FROM ginipet_users WHERE username = ?',
@@ -614,4 +614,5 @@ app.post('/login', (req, res) => {
       res.json({ token });
     });
 });
+
 
