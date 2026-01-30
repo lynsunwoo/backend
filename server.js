@@ -6,7 +6,6 @@ const cors = require('cors');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'my_secret_key';
 
 const app = express();
 const PORT = process.env.PORT || 9070;
@@ -615,3 +614,4 @@ app.post('/login', (req, res) => {
       res.json({ token });
     });
 });
+
