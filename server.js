@@ -6,6 +6,7 @@ const cors = require('cors');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const SECRET_KEY = 'my_secret_key';
 
 const app = express();
 const PORT = process.env.PORT || 9070;
@@ -531,4 +532,86 @@ app.put(`/books/booksupdate/:num`, (req, res) => {
   )
 })
 
+//ginipet
+//1. 테이블 조회
+app.get('/ginipet', (req, res) => {
+  connection.query('SELECT * FROM ginipet_users', (err, results) => {
+    if (err) {
+      console.log('쿼리오류 :', err)
+      res.status(500).json({ err: '쿼리 오류' });
+      return;
+    }
+    res.json(results);
+  })
+})
 
+//2. 회원 가입용 API 
+app.post('/register', async (req, res) => {
+  try {
+    const { username, password, email, tel } = req.body;
+
+    // 비밀번호 해시
+    const hash = await bcrypt.hash(password, 10);
+
+    // DB 저장
+    connection.query(
+      'INSERT INTO ginipet_users (username, password, email, tel) VALUES (?, ?, ?, ?)',
+      [username, hash, email, tel],
+      (err) => {
+        if (err) {
+          // 중복 아이디 처리
+          if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({ error: '이미 존재하는 아이디입니다.' });
+          }
+
+          console.error(err);
+          return res.status(500).json({ error: '회원가입 실패' });
+        }
+
+        res.json({ success: true });
+      }
+    );
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: '서버 오류' });
+  }
+});
+//3. 아이디 중복확인 조회 post 방식
+app.post('/check-username', (req, res) => {
+  const { username } = req.body;
+  connection.query('SELECT * FROM ginipet_users WHERE username=?',
+    [username],
+    (err, result) => {
+      if (err) return res.status(500).send(err);
+      res.json({ exists: result.length > 0 });
+    });
+});
+
+//4. 로그인용 API
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  connection.query('SELECT * FROM ginipet_users WHERE username = ?',
+    [username], async (err, result) => {
+      if (err || result.length === 0) {
+        return res.status(401).json({
+          error: '아이디 또는 비밀번호가 틀렸습니다.'
+        });
+      }
+
+      const user = result[0];
+
+      //사용자가 입력한 pw, db에 있는 pw비교
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) {
+        return res.status(401).json({ error: '아이디 또는 비밀번호가 틀렸습니다.' });
+      }
+      //토근 생성 
+      const token = jwt.sign({ id: user.id, username: user.username}, SECRET_KEY, { expiresIn: '1h' });
+
+      //토큰 발급
+      res.json({ token });
+    });
+});
